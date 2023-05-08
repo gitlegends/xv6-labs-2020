@@ -17,7 +17,8 @@ extern char end[]; // first address after kernel.
 struct run {
   struct run *next;
 };
-
+// 接下来我们来实现获取空闲内存数量的函数。可用空间的判断在 kernel/kalloc.c 文件中。
+// 这里定义了一个链表，每个链表都指向上一个可用空间，这里的 kmem 就是一个保存最后链表的变量。
 struct {
   struct spinlock lock;
   struct run *freelist;
@@ -61,7 +62,9 @@ kfree(void *pa)
   kmem.freelist = r;
   release(&kmem.lock);
 }
-
+// 这里把从 end (内核后的第一个地址) 到 PHYSTOP (KERNBASE + 128*1024*1024) 之间的物理空间以 PGSIZE 为单位全部初始化为 1 ，
+// 然后每次初始化一个 PGSIZE 就把这个页挂在了 kmem.freelist 上，所以 kmem.freelist 永远指向最后一个可用页，那我们只要顺着这个链表往前走，
+// 直到 NULL 为止。所以我们就可以在 kernel/kalloc.c 中新增函数 free_mem ，以获取空闲内存数量：
 // Allocate one 4096-byte page of physical memory.
 // Returns a pointer that the kernel can use.
 // Returns 0 if the memory cannot be allocated.
@@ -80,6 +83,7 @@ kalloc(void)
     memset((char*)r, 5, PGSIZE); // fill with junk
   return (void*)r;
 }
+// Return the number of bytes of free memory
 
 uint64
 count_freemem(void)

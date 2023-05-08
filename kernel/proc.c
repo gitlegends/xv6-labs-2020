@@ -281,7 +281,8 @@ fork(void)
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
-
+  //copy trace mask from parent to child
+  np->trace_mask = p->trace_mask;
   // Cause fork to return 0 in the child.
   np->trapframe->a0 = 0;
 
@@ -698,7 +699,7 @@ procdump(void)
   }
 }
 
-
+//通过该函数以获取可用进程数目：
 uint64 count_process(void)
 {
   uint64 count = 0;

@@ -107,7 +107,10 @@ sys_trace(void)
   myproc()->trace_mask = n;
   return 0;
 }
-
+// 我们知道该函数其实就是把在内核地址 src 开始的 len 大小的数据拷贝到用户进程 pagetable 的虚地址 dstva 处，
+// 所以 sys_sysinfo 函数实现里先用 argaddr 函数读进来我们要保存的在用户态的数据 sysinfo 的指针地址，
+// 然后再把从内核里得到的 sysinfo 开始的内容以 sizeof(info) 大小的的数据复制到这个指针上。模仿上面的例子，
+// 我们在 kernel/sysproc.c 文件中添加 sys_sysinfo 函数的具体实现如下：
 uint64
 sys_sysinfo(void)
 {
